@@ -1,0 +1,16 @@
+{
+	"name": "hllizi/callmapper",
+	"description": "Iterators and elements with common interfaces.",
+	"authors": [{"name": "David Lahm"}],
+	"license": "GPL-2.0",
+	"require": {
+		"php": ">=7.0",
+		"hllizi/phpmonads": "dev-master"
+	},
+	"require-dev": {
+		"phpunit/phpunit": ">=6"
+	},
+	"autoload": {
+		"classmap": ["src/"]
+	}
+}
