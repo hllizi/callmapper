@@ -17,6 +17,7 @@ class Container
     public function __construct($elements)
     {
         $this->elements = $elements;
+        $this->registerMethods(['isFoo', 'number']);
     }
 
     protected function getArrayCopy()
@@ -73,7 +74,9 @@ class CallMapperTest extends \PHPUnit\Framework\TestCase
         $this->objects[] = [new Element("Fooboy", 1), new Element("Bjarne", 101)];
         $this->objects[] = [new Element("Fooboy", 1), new Element("Bjarne", 10)];
 
-        $this->objects = $this->objects->map(function ($array) {return new Container($array);});
+        $this->objects = $this->objects->map(function ($array) {
+            return new Container($array);
+        });
         parent::__construct($name, $data, $dataName);
     }
 
