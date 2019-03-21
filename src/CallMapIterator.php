@@ -14,7 +14,15 @@ use Hllizi\CallMapper\CallMapper;
 trait CallMapIterator
 {
     private $registeredMethods;
-    abstract protected function getArrayCopy(): ArrayMonad;
+    protected function getArrayCopy(): ArrayMonad
+    {
+        $arrayCopy = [];
+        foreach($this as $object)
+        {
+            $arrayCopy[] = $object;
+        }
+        return new ArrayMonad($arrayCopy);
+    }
 
     private function initialiseIfNull()
     {
