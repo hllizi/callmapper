@@ -13,12 +13,42 @@ use Hllizi\CallMapper\CallMapper;
 
 trait CallMapIterator
 {
+    private $registeredMethods;
     abstract protected function getArrayCopy(): ArrayMonad;
+
+    private function initialiseIfNull()
+    {
+        $this->registeredMethods = $this->registeredMethods ?? new ArrayMonad([]);
+    }
+
 
     public function __call($method, $args)
     {
-        if (true) {
+        $this->initialiseIfNull();
+        if (in_array($method, $this->registeredMethods->getArrayCopy())) {
             return call_user_func_array([new CallMapper($this->getArrayCopy()), $method], $args);
         }
+    }
+
+    public function registerMethods(array $methodArray)
+    {
+        $this->initialiseIfNull();
+        $this->registeredMethods->exchangeArray(array_merge($this->registeredMethods->getArrayCopy(), $methodArray));
+    }
+
+    public function deRegisterMethods(array $methodArray)
+    {
+        $this->initialiseIfNull();
+        $registeredMethods = $this->registeredMethods;
+        $registeredMethods =
+            $registeredMethods
+            ->bind(function ($method) use ($methodArray) {
+                if(in_array($method, $methodArray)) {
+                    return new ArrayMonad();
+                } else {
+                    return new ArrayMonad([$method]);
+                }
+            });
+        $this->registeredMethods = $registeredMethods;
     }
 }
