@@ -13,14 +13,15 @@ class CallMapper
 {
     use MonadTrait;
     private $objects;
+    private $monoidPrototype;
 
-    protected function allBools(): bool
+    protected function allMonoid(): bool
     {
         return
             $this->objects->fold(
                 true,
                 function ($arg1, $arg2) {
-                    return $arg1 && is_bool($arg2);
+                    return $arg1 && $arg2 instanceof MonoidInterface;
                 });
     }
 
@@ -34,33 +35,24 @@ class CallMapper
                 }
             );
     }
+ 
+    protected function accumulate(): MonoidInterface
+    {
+        return
+            $this->objects->fold(
+                sizeof($this->objects) == 0 ? null : $this->objects[0]->neutral(),
+		function (MonoidInterface $mon1, MonoidInterface $mon2) 
+		{
+			return $mon1->op($mon2);
+                }
+            );
+    }
+
 
     public function __construct(ArrayMonad $objects)
     {
         $this->objects = $objects;
     }
-
- /*   public function __invoke()
-    {
-        if ($this->objects->fold(
-            true,
-            function ($arg1, $arg2) {
-                return $arg1 && is_bool($arg2);
-            })
-        ) {
-
-            return
-                $this->objects->fold(
-                    false,
-                    function ($bool1, $bool2) {
-                        return $bool1 || $bool2;
-                    }
-                );
-        } else {
-            throw new \Exception("CallMapper may not be invoked with non-boolean elements.");
-        }
-
-    }*/
 
     public function return($x)
     {
@@ -86,8 +78,8 @@ class CallMapper
             return call_user_func_array([$object, $method], $args);
         };
         $applied = $this->map($call);
-        if($applied->allBools()) {
-            return $applied->some();
+        if($applied->allMonoid()) {
+            return $applied->accumulate();
         } else {
             return $applied;
         }
