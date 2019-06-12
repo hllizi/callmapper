@@ -81,12 +81,35 @@ class Element
 }
 
 class Number
+	implements MonoidInterface
 {
     private $no;
 
-    public function __construct($no) {
+    public function __construct($no) 
+    {
         $this->no = $no;
     }
+
+    public function __invoke()
+    {
+	    return $this->no;
+    }
+
+    public function neutral(): MonoidInterface
+    {
+	    return $this->return(0);
+    }
+
+    public function op(MonoidInterface $n): MonoidInterface
+    {
+	    return $this->return($this() + $n());
+    }
+
+    public function return($n): MonoidInterface
+    {
+	    return new Number($n);
+    }
+
     public function isBig() {
         return new BoolMonoid($this->no > 100);
     }
@@ -127,5 +150,10 @@ class CallMapperTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($this->objects[1]->number()->isBig()());
         $this->assertTrue($this->objects[2]->number()->isBig()());
         $this->assertFalse($this->objects[3]->number()->isBig()());
+    }
+
+    public function testNumberSum()
+    {
+	    $this->assertEquals(102, $this->objects[0]->number()());
     }
 }
