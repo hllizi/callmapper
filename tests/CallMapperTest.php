@@ -48,7 +48,7 @@ class Container
     public function __construct($elements)
     {
         $this->elements = $elements;
-        $this->registerMethods(['isFoo', 'number']);
+        $this->registerMethods(['isFoo', 'number', 'name']);
     }
 
     protected function getArrayCopy()
@@ -71,6 +71,11 @@ class Element
     public function number()
     {
         return new Number($this->no);
+    }
+
+    public function name()
+    {
+	return new Name($this->name);
     }
 
     public function isFoo()
@@ -115,6 +120,37 @@ class Number
     }
 }
 
+class Name
+	implements MonoidInterface
+{
+	private $name;
+
+	public function __construct(string $name)
+	{
+		$this->name = $name;
+	}
+
+	public function __invoke()
+	{
+		return $this->name;
+	}
+
+	public function neutral(): MonoidInterface
+	{
+		return $this->return("");
+	}
+
+	public function op(MonoidInterface $n): MonoidInterface
+	{
+		return $this->return($this() . $n());
+	}
+
+	public function return($s): MonoidInterface
+	{
+		return new Name($s);
+	}
+}
+
 class CallMapperTest extends \PHPUnit\Framework\TestCase
 {
 
@@ -155,5 +191,10 @@ class CallMapperTest extends \PHPUnit\Framework\TestCase
     public function testNumberSum()
     {
 	    $this->assertEquals(102, $this->objects[0]->number()());
+    }
+
+    public function testNameConcat()
+    {
+	    $this->assertEquals("FooBjarne", $this->objects[0]->name()->__invoke());
     }
 }
