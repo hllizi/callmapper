@@ -6,54 +6,48 @@
  * Time: 12:24
  */
 use Hllizi\CallMapper\CallMapIterator;
-use Hllizi\CallMapper\MonoidInterface;
+use Hllizi\CallMapper\Monoid\MonoidInterface;
+use Hllizi\CallMapper\Monoid\MonoidFactory;
 use Hllizi\PHPMonads\ArrayMonad;
 
-class BoolMonoid
-	implements MonoidInterface
-{
-	private $data;
-
-	public function __invoke()
-	{
-		return $this->data;
-	}
-
-	public function __construct(bool $data)
-	{
-		$this->data = $data;
-	}
-
-	public function neutral(): MonoidInterface
-	{
-		return $this->return(false);
-	}
-
-	public function op(MonoidInterface $mon): MonoidInterface 
-	{
-		return new BoolMonoid($this() || $mon());
-	}
-
-	public function return($data): MonoidInterface
-	{
-		return new BoolMonoid($data);
-	}
-}
 
 class Container
+	implements Iterator
 {
     use CallMapIterator;
     private $elements;
 
     public function __construct($elements)
     {
-        $this->elements = $elements;
+	echo "Into container\n";
+        $this->elements = new ArrayMonad($elements);
         $this->registerMethods(['isFoo', 'number', 'name']);
     }
 
-    protected function getArrayCopy()
+    public function getArrayCopy()
     {
-        return new ArrayMonad($this->elements);
+        return $this->elements;
+    }
+
+    public function current() {
+    	return $this->elements->getIterator()->current();
+    }
+
+    public function key() {
+    	return $this->elements->getIterator()->key();
+    }
+
+    public function next() {
+    	return $this->elements->getIterator()->next();
+    }
+
+
+    public function rewind() {
+    	return $this->elements->getIterator()->rewind();
+    }
+
+    public function valid() {
+    	return $this->elements->getIterator()->valid();
     }
 }
 
@@ -70,85 +64,19 @@ class Element
 
     public function number()
     {
-        return new Number($this->no);
+        return $this->no;
     }
 
     public function name()
     {
-	return new Name($this->name);
+	return $this->name;
     }
 
     public function isFoo()
     {
         $isBjoern = strcmp("Foo", $this->name) == 0;
-        return new BoolMonoid($isBjoern);
+        return $isBjoern;
     }
-}
-
-class Number
-	implements MonoidInterface
-{
-    private $no;
-
-    public function __construct($no) 
-    {
-        $this->no = $no;
-    }
-
-    public function __invoke()
-    {
-	    return $this->no;
-    }
-
-    public function neutral(): MonoidInterface
-    {
-	    return $this->return(0);
-    }
-
-    public function op(MonoidInterface $n): MonoidInterface
-    {
-	    return $this->return($this() + $n());
-    }
-
-    public function return($n): MonoidInterface
-    {
-	    return new Number($n);
-    }
-
-    public function isBig() {
-        return new BoolMonoid($this->no > 100);
-    }
-}
-
-class Name
-	implements MonoidInterface
-{
-	private $name;
-
-	public function __construct(string $name)
-	{
-		$this->name = $name;
-	}
-
-	public function __invoke()
-	{
-		return $this->name;
-	}
-
-	public function neutral(): MonoidInterface
-	{
-		return $this->return("");
-	}
-
-	public function op(MonoidInterface $n): MonoidInterface
-	{
-		return $this->return($this() . $n());
-	}
-
-	public function return($s): MonoidInterface
-	{
-		return new Name($s);
-	}
 }
 
 class CallMapperTest extends \PHPUnit\Framework\TestCase
@@ -168,33 +96,28 @@ class CallMapperTest extends \PHPUnit\Framework\TestCase
         $this->objects = $this->objects->map(function ($array) {
             return new Container($array);
         });
+	echo "Constructed, constructing parent.";
         parent::__construct($name, $data, $dataName);
     }
 
     public function testSingleMethod()
     {
 
+	echo "Single Method";
         $this->assertTrue($this->objects[0]->isFoo()());
-        $this->assertTrue($this->objects[1]->isFoo()());
-        $this->assertFalse($this->objects[2]->isFoo()());
-        $this->assertFalse($this->objects[3]->isFoo()());
-    }
-
-    public function testMethodChain()
-    {
-        $this->assertTrue($this->objects[0]->number()->isBig()());
-        $this->assertFalse($this->objects[1]->number()->isBig()());
-        $this->assertTrue($this->objects[2]->number()->isBig()());
-        $this->assertFalse($this->objects[3]->number()->isBig()());
-    }
-
-    public function testNumberSum()
-    {
-	    $this->assertEquals(102, $this->objects[0]->number()());
-    }
-
-    public function testNameConcat()
-    {
-	    $this->assertEquals("FooBjarne", $this->objects[0]->name()->__invoke());
+//	echo "First asserted";
+//        $this->assertTrue($this->objects[1]->isFoo()());
+//	echo "Second asserted";
+//        $this->assertFalse($this->objects[2]->isFoo()());
+//	echo "Third asserted";
+//        $this->assertFalse($this->objects[3]->isFoo()());
+//    }
+//
+//    public function testMethodChain()
+//    {
+//        $this->assertTrue($this->objects[0]->number());
+//        $this->assertFalse($this->objects[1]->number());
+//        $this->assertTrue($this->objects[2]->number());
+//        $this->assertFalse($this->objects[3]->number());
     }
 }
