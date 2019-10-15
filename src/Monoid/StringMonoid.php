@@ -4,11 +4,8 @@ namespace Hllizi\CallMapper\Monoid;
 
 use Hllizi\CallMapper\Monoid\MonoidInterface;
 
-class StringMonoid 
-    implements MonoidInterface
+class StringMonoid extends Monoid
 {
-    private $value;
-
     public function neutral()
     {
         return new StringMonoid("");
@@ -17,16 +14,6 @@ class StringMonoid
     public function op($string)
     {
         return new StringMonoid($string . $this->value);
-    }
-
-    public function return($value)
-    {
-        $this->value = $value;
-    }
-
-    public function value()
-    {
-        return $this->value;
     }
 }
 

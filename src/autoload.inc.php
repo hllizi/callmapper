@@ -9,6 +9,7 @@ spl_autoload_register(
             $classes = array(
                 'hllizi\\callmapper\\callmapiterator' => '/CallMapIterator.php',
                 'hllizi\\callmapper\\callmapper' => '/CallMapper.php',
+                'hllizi\\callmapper\\monoid\\abstractmonoid' => '/Monoid/AbstractMonoid.php',
                 'hllizi\\callmapper\\monoid\\arraymonoid' => '/Monoid/ArrayMonoid.php',
                 'hllizi\\callmapper\\monoid\\boolmonoid' => '/Monoid/BoolMonoid.php',
                 'hllizi\\callmapper\\monoid\\monoidfactory' => '/Monoid/MonoidFactory.php',

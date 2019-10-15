@@ -27,13 +27,15 @@ trait CallMapIterator
 //        }
         $call = function($object) use ($method, $args) {
             return call_user_func_array([$object, $method], $args);
+
         };
 	$applied = new CallMapper([]);
 	foreach($this as $item) {
 		$applied[] = $this->monoidFactory->makeMonoid($call($item));
 	}
         if($applied->allMonoid()) {
-            return $applied->accumulate()->value();
+            $result = $applied->accumulate()->value();
+            return $result;
         } else {
             return $applied;
         }
@@ -48,7 +50,7 @@ trait CallMapIterator
         return $value;
     }
 
-    protected function allMonoid(): bool
+    public function allMonoid(): bool
     {
         return
             $this->fold(
@@ -59,7 +61,7 @@ trait CallMapIterator
                 });
     }
  
-    protected function accumulate(): MonoidInterface
+    public function accumulate(): MonoidInterface
     {
 
         if(sizeof($this) == 0) {
@@ -67,6 +69,7 @@ trait CallMapIterator
         } else 
             {
                $neutral = $this[0]->neutral();
+                $e=4;
         }
                 
         return

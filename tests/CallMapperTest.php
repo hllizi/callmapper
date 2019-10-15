@@ -11,8 +11,7 @@ use Hllizi\CallMapper\Monoid\MonoidFactory;
 use Hllizi\PHPMonads\ArrayMonad;
 
 
-class Container
-	implements Iterator
+class Container extends ArrayMonad
 {
     use CallMapIterator;
     private $elements;
@@ -20,34 +19,8 @@ class Container
     public function __construct($elements)
     {
 	echo "Into container\n";
-        $this->elements = new ArrayMonad($elements);
+        parent::__construct($elements);
         $this->registerMethods(['isFoo', 'number', 'name']);
-    }
-
-    public function getArrayCopy()
-    {
-        return $this->elements;
-    }
-
-    public function current() {
-    	return $this->elements->getIterator()->current();
-    }
-
-    public function key() {
-    	return $this->elements->getIterator()->key();
-    }
-
-    public function next() {
-    	return $this->elements->getIterator()->next();
-    }
-
-
-    public function rewind() {
-    	return $this->elements->getIterator()->rewind();
-    }
-
-    public function valid() {
-    	return $this->elements->getIterator()->valid();
     }
 }
 
@@ -74,8 +47,11 @@ class Element
 
     public function isFoo()
     {
-        $isBjoern = strcmp("Foo", $this->name) == 0;
-        return $isBjoern;
+       if(strcmp("Foo", $this->name) == 0) {
+        return true;
+        } else {
+        return false;
+        }
     }
 }
 
@@ -102,15 +78,10 @@ class CallMapperTest extends \PHPUnit\Framework\TestCase
 
     public function testSingleMethod()
     {
-
-	echo "Single Method";
-        $this->assertTrue($this->objects[0]->isFoo()());
-//	echo "First asserted";
-//        $this->assertTrue($this->objects[1]->isFoo()());
-//	echo "Second asserted";
-//        $this->assertFalse($this->objects[2]->isFoo()());
-//	echo "Third asserted";
-//        $this->assertFalse($this->objects[3]->isFoo()());
+        $this->assertTrue($this->objects[0]->isFoo());
+        $this->assertTrue($this->objects[1]->isFoo());
+        $this->assertFalse($this->objects[2]->isFoo());
+        $this->assertFalse($this->objects[3]->isFoo());
 //    }
 //
 //    public function testMethodChain()

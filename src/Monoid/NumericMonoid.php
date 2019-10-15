@@ -4,11 +4,8 @@ namespace Hllizi\CallMapper\Monoid;
 
 use Hllizi\CallMapper\Monoid\MonoidInterface;
 
-class NumericMonoid 
-    implements MonoidInterface
+class NumericMonoid extends Monoid
 {
-    private $value;
-
     public function neutral()
     {
         return new NumericMonad(0);
@@ -17,16 +14,6 @@ class NumericMonoid
     public function op($p)
     {
         return new NumericMonoid($p + $this->value);
-    }
-
-    public function return($value)
-    {
-        $this->value = $value;
-    }
-
-    public function value()
-    {
-        return $this->value;
     }
 }
 
